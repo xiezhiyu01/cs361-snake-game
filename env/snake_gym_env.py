@@ -17,7 +17,7 @@ class SnakeEnv(gym.Env):
         self.game = SnakeGame(grid_size)
         self.renderer = SnakeRenderer(grid_size)
 
-        self.action_space = spaces.Discrete(4)  # up, down, left, right
+        self.action_space = spaces.Discrete(3)  # up, down, left, right -> Changed to left, straight, right
         self.observation_space = spaces.Box(
             low=0,
             high=255,

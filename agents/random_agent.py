@@ -7,4 +7,4 @@ class RandomAgent(BaseAgent):
 
     def select_action(self, obs, state):
         """ Select a random action."""
-        return random.randint(0, 3)
+        return random.randint(0, 2)
