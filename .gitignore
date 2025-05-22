@@ -1,0 +1,12 @@
+# Compiled Python files
+__pycache__/
+*.py[cod]
+
+# VSCode settings
+.vscode/
+
+# macOS
+.DS_Store
+
+# Others
+checkpoints/
