@@ -23,14 +23,46 @@ class GAAgent(BaseAgent):
             np.random.choice(list(range(3))) if np.random.rand() < self.mutation_rate else action
             for action in sequence
         ]
+    
+    def _initialize_rollout_with_initial_action(self, initial_action):
+        """to prevent snake from going back on itself, we need to know previous action"""
+        action_sequence = []
+        current_action = initial_action
+        while len(action_sequence) < self.rollout_length:
+            action = np.random.choice(4)
+            # avoid snake to go back on itself
+            # actions are mapped from 0 1 2 3 to up down left right
+            if action == 0:
+                if current_action == 1:
+                    continue
+            if action == 1:
+                if current_action == 0:
+                    continue
+            if action == 2:
+                if current_action == 3:
+                    continue
+            if action == 3:
+                if current_action == 2:
+                    continue
+            action_sequence.append(action)
+            current_action = action
+        return action_sequence
 
     def select_action(self, obs, state):
         best_sequence = None
         best_score = float('-inf')
 
-        # Initialize population
+        # remember initial direction is right (action 3)
+        current_direction = state['direction']
+        direction_to_action = {
+            (-1, 0):0,  # up
+            (1, 0):1,   # down
+            (0, -1):2,  # left
+            (0, 1):3    # right
+        }
+        initial_action = direction_to_action[current_direction]
         population = [
-            [np.random.choice(4) for _ in range(self.rollout_length)]
+            self._initialize_rollout_with_initial_action(initial_action)
             for _ in range(self.population_size)
         ]
 
