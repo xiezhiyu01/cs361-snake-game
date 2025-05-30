@@ -3,7 +3,6 @@ from env.snake_gym_env import SnakeEnv
 from agents.random_agent import RandomAgent
 from agents.greedy_agent import GreedyAgent
 from agents.ppo_agent import PPOAgent
-from agents.ga_agent import GAAgent
 from runners.evaluate_agent import evaluate
 
 def get_agent(grid_size, agent_name, model_path=None):
@@ -13,8 +12,6 @@ def get_agent(grid_size, agent_name, model_path=None):
         return GreedyAgent(grid_size)
     elif agent_name == "ppo":
         return PPOAgent(model_path, grid_size)
-    elif agent_name == "ga":
-        return GAAgent(grid_size)
     else:
         raise ValueError(f"Unknown agent: {agent_name}")
 
