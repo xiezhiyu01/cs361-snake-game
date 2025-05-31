@@ -2,7 +2,7 @@
 # General evolution settings
 fitness_criterion     = max
 fitness_threshold     = 200.0
-pop_size              = 200
+pop_size              = 500
 reset_on_extinction   = False
 no_fitness_termination = True
 
@@ -10,7 +10,7 @@ no_fitness_termination = True
 # Network architecture
 num_inputs            = 20
 num_outputs           = 4
-num_hidden            = 2
+num_hidden            = 3
 feed_forward          = True
 initial_connection    = partial_direct 0.8
 

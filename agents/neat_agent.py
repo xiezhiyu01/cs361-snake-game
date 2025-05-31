@@ -28,33 +28,43 @@ class NEATAgent(BaseAgent):
 
         # 1. Vision lines: 4 directions × (food + obstacle), values scaled by 5
         # Also write down immediate danger directions
-        danger_dist = [0, 0, 0, 0]
+        food_dist = []
+        obstacle_dist = []
         for dir_id, (dx, dy) in enumerate(directions):
-            food_dist = 0
-            obstacle_dist = 0
+            food_d = None
+            obstacle_d = None
             for dist in range(1, grid_size + 1):
                 x = head[0] + dx * dist
                 y = head[1] + dy * dist
                 if not (0 <= x < grid_size and 0 <= y < grid_size):
-                    danger_dist[dir_id] = dist
-                    obstacle_dist = 1.0 / dist
+                    obstacle_d = dist
                     break
-                if obstacle_dist == 0 and (x, y) in body:
-                    danger_dist[dir_id] = dist
-                    obstacle_dist = 1.0 / dist
-                if food_dist == 0 and (x, y) == food:
-                    food_dist = 1.0 / dist
-            # if obstacle_dist == 0:
-            #     obstacle_dist = 1.0 / grid_size
-            inputs.extend([food_dist, obstacle_dist])
+                if obstacle_d is None and (x, y) in body:
+                    obstacle_d = dist
+                if food_d is None and (x, y) == food:
+                    food_d = dist
+            food_dist.append(food_d)
+            obstacle_dist.append(obstacle_d)
+
+        # Normalize distances
+        inputs.extend([
+            (1.0 / dist) if dist is not None else 0 for dist in food_dist
+        ])
+        inputs.extend([
+            (1.0 / dist) if dist is not None else 0 for dist in obstacle_dist
+        ])
 
         # Danger directions (one-hot)
-        danger_dir = [0, 0, 0, 0]
-        for dir_id, dist in enumerate(danger_dist):
-            if dist == 1: # immediate danger
-                danger_dir[dir_id] = 5
-            elif dist < 4: # close danger
-                danger_dir[dir_id] = 2
+        danger_dir = []
+        for dist in obstacle_dist:
+            if dist is None:
+                danger_dir.append(0)
+            elif dist == 1: # immediate danger
+                danger_dir.append(5)
+            elif dist <= 4: # close danger
+                danger_dir.append(3)
+            else: # far danger
+                danger_dir.append(1)
         inputs.extend(danger_dir)
 
         # 2. Distance to food (normalized dx, dy)
@@ -72,14 +82,14 @@ class NEATAgent(BaseAgent):
             food_dir[2 if dy < 0 else 3] = 1
         inputs.extend(food_dir)
 
-        # # # 3. Current direction (one-hot)
+        # 3. Current direction (one-hot)
         direction_map = {
             (0, 1): [1, 0, 0, 0],   # right
             (0, -1): [0, 1, 0, 0],  # left
             (1, 0): [0, 0, 1, 0],   # down
             (-1, 0): [0, 0, 0, 1],  # up
         }
-        # direction = direction_map.get(state['direction'], [0, 0, 0, 0])
+        direction = direction_map.get(state['direction'], [0, 0, 0, 0])
         # inputs.extend(direction)
 
         # 4. Tail direction (where is the tail moving)
