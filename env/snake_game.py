@@ -80,7 +80,7 @@ class SnakeGame:
         # Collision check and Direction check (can't go backward))
         if ((new_head in self.snake) or
             (not (0 <= new_head[0] < self.grid_size and 0 <= new_head[1] < self.grid_size)) or
-            (self.direction[0] == -old_direction[0] and self.direction[1] == -old_direction[1])):
+            (self.steps > 1 and self.direction[0] == -old_direction[0] and self.direction[1] == -old_direction[1])):
             self.done = True
             return self.get_state(), 0, True
         

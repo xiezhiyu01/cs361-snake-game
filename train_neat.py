@@ -43,10 +43,10 @@ def eval_genome(genome, config):
 
     # Final fitness
     fitness = (
-        food_eaten * 100
-        + survival_steps
-        + sum(distance_improvements) * 0.5
-        - (50 if steps_since_last_food > 50 else 0)  # penalize stalling
+        food_eaten * 10
+        + survival_steps * 0.1
+        + sum(distance_improvements) * 0.05
+        - (steps_since_last_food if steps_since_last_food > 50 else 0)  # penalize stalling
     )
     genome.fitness = fitness
     return fitness
