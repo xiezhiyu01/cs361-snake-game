@@ -9,7 +9,7 @@ from env.snake_game import SnakeGame
 from agents.neat_agent import NEATAgent
 
 
-def setup_logger(log_path="neat_training.log"):
+def setup_logger(log_path="logs/neat_training.log"):
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     if logger.hasHandlers():
@@ -47,7 +47,7 @@ def _single_run(genome, config):
 
     prev_dist = manhattan_distance(state['snake'][0], state['food'])
 
-    for _ in range(500):
+    for _ in range(750):
         features = NEATAgent.extract_features(state, grid_size=16)
         action = np.argmax(net.activate(features))
         state, reward, done = game.step(action)
@@ -73,7 +73,7 @@ def _single_run(genome, config):
             fitness -= 10
             break
 
-    survival_bonus = min(survival_steps, 100) * 0.15
+    survival_bonus = min(survival_steps, 300) * 0.15
 
     fitness += (food_eaten ** 2) * 5
     fitness += survival_bonus
@@ -93,7 +93,6 @@ def make_eval_fn(trials):
 
 
 def run_neat(config_path, n=50, path="checkpoints/best_neat_genome.pkl", trials=5):
-    setup_logger("neat_training.log")
     if not os.path.exists(config_path):
         raise FileNotFoundError(f"NEAT config file not found: {config_path}")
     
@@ -109,12 +108,32 @@ def run_neat(config_path, n=50, path="checkpoints/best_neat_genome.pkl", trials=
     population.add_reporter(neat.StdOutReporter(True))
     population.add_reporter(neat.StatisticsReporter())
 
+    # winner = population.run(lambda genomes, cfg: [eval_fn(g, cfg) for g_id, g in genomes], n=n)
+    
     eval_fn = make_eval_fn(trials)
-    winner = population.run(lambda genomes, cfg: [eval_fn(g, cfg) for g_id, g in genomes], n=n)
+    best_genome = None
+    best_fitness = float("-inf")
+    generation_counter = [0] 
 
-    with open(path, "wb") as f:
-        pickle.dump(winner, f)
-    print("NEAT training complete. Best genome saved.")
+    def eval_and_save(genomes, cfg):
+        nonlocal best_genome, best_fitness
+        generation_counter[0] += 1
+
+        for genome_id, genome in genomes:
+            fitness = eval_fn(genome, cfg)
+            if fitness > best_fitness:
+                best_fitness = fitness
+                best_genome = genome
+                print(f"[New Best] Genome {genome_id} with fitness {fitness:.2f} at generation {generation_counter[0]}")
+
+        # Save every 100 generations or at the end
+        if generation_counter[0] % 100 == 0 or generation_counter[0] == n:
+            with open(path, "wb") as f:
+                pickle.dump(best_genome, f)
+            print(f"[Checkpoint] Saved best genome at generation {generation_counter[0]} with fitness {best_fitness:.2f}")
+
+    population.run(eval_and_save, n)
+    print("NEAT training complete.")
 
 
 if __name__ == "__main__":
@@ -124,5 +143,7 @@ if __name__ == "__main__":
     parser.add_argument("--n", type=int, default=50, help="Number of generations to run")
     parser.add_argument("--path", type=str, default="checkpoints/best_neat_genome.pkl", help="Path to save the best genome")
     parser.add_argument("--trials", type=int, default=5, help="Number of eval trials per genome")
+    parser.add_argument("--log", type=str, default="logs/neat_training.log", help="Path to save the training log")
     args = parser.parse_args()
+    setup_logger(args.log)
     run_neat(args.config, args.n, args.path, args.trials)

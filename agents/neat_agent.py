@@ -30,6 +30,7 @@ class NEATAgent(BaseAgent):
         # Also write down immediate danger directions
         food_dist = []
         obstacle_dist = []
+        # TODO: add the other 4 directions (diagonal)
         for dir_id, (dx, dy) in enumerate(directions):
             food_d = None
             obstacle_d = None
@@ -54,7 +55,7 @@ class NEATAgent(BaseAgent):
             (1.0 / dist) if dist is not None else 0 for dist in obstacle_dist
         ])
 
-        # Danger directions (one-hot)
+        # Danger directions (values: 0=none, 1=far, 3=close, 5=immediate)
         danger_dir = []
         for dist in obstacle_dist:
             if dist is None:
@@ -66,6 +67,11 @@ class NEATAgent(BaseAgent):
             else: # far danger
                 danger_dir.append(1)
         inputs.extend(danger_dir)
+
+        # Danger Directions (1=immediate, 0=none)
+        # inputs.extend([
+        #     1 if dist == 1 else 0 for dist in obstacle_dist
+        # ])
 
         # 2. Distance to food (normalized dx, dy)
         dx = (food[0] - head[0]) / grid_size * 5
@@ -103,6 +109,9 @@ class NEATAgent(BaseAgent):
 
         # 5. Head position (normalized)
         inputs.extend([head[0] / grid_size, head[1] / grid_size])
+
+        # 6. Tail position (normalized)
+        # inputs.extend([tail[0] / grid_size, tail[1] / grid_size])
 
         return np.array(inputs, dtype=np.float32)
         
