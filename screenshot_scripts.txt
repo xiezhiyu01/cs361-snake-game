@@ -5,3 +5,9 @@ python run_evaluate.py --model checkpoints/exp3-best-copy.pkl --agent neat --epi
 python run_evaluate.py --model checkpoints/ppo_snake --agent ppo --episodes=1 --seed=6 --visualize
 python run_evaluate.py --agent greedy --episodes=1 --seed=3 --visualize
 python run_evaluate.py --agent ga --episodes=1 --seed=8 --visualize
+
+# video example script
+# first run this command to generate frames (if infinite loop just kill it)
+python run_evaluate.py --model checkpoints/exp3-best-copy.pkl --agent neat --episodes=1 --seed=9 --visualize --visualize_save_dir=temp_frames
+# then run this to generate gif/video from frames
+python make_video.py --label=exp_neat --dir=temp_frames --clean
