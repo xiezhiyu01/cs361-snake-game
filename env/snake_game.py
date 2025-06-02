@@ -17,7 +17,7 @@ def manhattan_distance(a, b):
 class SnakeGame:
     def __init__(self, grid_size=16):
         self.grid_size = grid_size
-        self.DIRECTIONS = [(-1, 0), (1, 0), (0, -1), (0, 1)] 
+        self.DIRECTIONS = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # up, right, down, left
         self.game_rng = random.Random()
         self.simulation_rng = random.Random()
         self.reset()
@@ -28,11 +28,13 @@ class SnakeGame:
         return [seed]
 
     def reset(self):
-        self.snake = [(self.grid_size // 2, self.grid_size // 2)]
+        self.snake = [(self.grid_size // 2, self.grid_size // 2 + 1), (self.grid_size // 2, self.grid_size // 2)]
         self.direction = (0, 1)  # Initially moving right
         self.generate_food()
         self.done = False
+        self.done_type = "none"
         self.steps = 0
+        self.steps_since_food = 0
         return self.get_state()
     
     # def direction_from_action(self, prev_direction, action):
@@ -76,12 +78,19 @@ class SnakeGame:
         )
 
         self.steps += 1
+        self.steps_since_food += 1
 
         # Collision check and Direction check (can't go backward))
-        if ((new_head in self.snake) or
-            (not (0 <= new_head[0] < self.grid_size and 0 <= new_head[1] < self.grid_size)) or
-            (self.direction[0] == -old_direction[0] and self.direction[1] == -old_direction[1])):
+        if (new_head in self.snake) or (not (0 <= new_head[0] < self.grid_size and 0 <= new_head[1] < self.grid_size)):
             self.done = True
+            if new_head in self.snake:
+                self.done_type = "self"
+            else:
+                self.done_type = "wall"
+            # if the snake turns back on itself, it is consider illegal action
+            if old_direction[0] == -self.direction[0] and old_direction[1] == -self.direction[1]:
+                self.done_type = "illegal_action"
+
             return self.get_state(), 0, True
         
 
@@ -90,6 +99,7 @@ class SnakeGame:
 
         if new_head == self.food:
             reward = 1
+            self.steps_since_food = 0
             self.generate_food()
         else:
             self.snake.pop()
@@ -107,6 +117,7 @@ class SnakeGame:
 
         for action in actions:
             reward = 0
+            old_direction = self.direction
             self.direction = self.DIRECTIONS[action]
             new_head = (
                 self.snake[0][0] + self.direction[0],
@@ -116,6 +127,13 @@ class SnakeGame:
             if (new_head in self.snake or
                 not (0 <= new_head[0] < self.grid_size and 0 <= new_head[1] < self.grid_size)):
                 done = True
+                if new_head in self.snake:
+                    self.done_type = "self"
+                else:
+                    self.done_type = "wall"
+                # if the snake turns back on itself, it is consider illegal action
+                if old_direction[0] == -self.direction[0] and old_direction[1] == -self.direction[1]:
+                    self.done_type = "illegal_action"
                 break
             steps_survived += 1
             prev_distance = manhattan_distance(self.snake[0], self.food)
@@ -124,13 +142,16 @@ class SnakeGame:
                 improvements += 1
 
             self.snake.insert(0, new_head)
+            self.steps_since_food += 1
             if new_head == self.food:
                 reward = 1
+                self.steps_since_food = 0
                 self.food = food_respawn_fn(self.simulation_rng, self.get_state())
             else:
                 self.snake.pop()
 
             self.steps += 1
+
             total_reward += reward
 
         final_state = self.get_state()
@@ -145,7 +166,9 @@ class SnakeGame:
             'direction': self.direction,
             'grid_size': self.grid_size,
             'steps': self.steps,
+            'steps_since_food': self.steps_since_food,
             'done': self.done,
+            'done_type': self.done_type,
             'simulation_rng': self.simulation_rng.getstate()
         }
 
@@ -156,5 +179,7 @@ class SnakeGame:
         self.direction = state['direction']
         self.grid_size = state['grid_size']
         self.steps = state['steps']
+        self.steps_since_food = state['steps_since_food']
         self.done = state['done']
+        self.done_type = state['done_type']
         self.simulation_rng.setstate(state['simulation_rng'])

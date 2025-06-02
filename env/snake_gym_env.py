@@ -8,14 +8,14 @@ from env.renderer import SnakeRenderer
 class SnakeEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, grid_size=16, agent_name=None):
+    def __init__(self, grid_size=16, agent_name=None, render_save_dir=None):
         super(SnakeEnv, self).__init__()
         self.grid_size = grid_size
         # import pdb
         # pdb.set_trace()
         self.agent_name = agent_name
         self.game = SnakeGame(grid_size)
-        self.renderer = SnakeRenderer(grid_size)
+        self.renderer = SnakeRenderer(grid_size, save_dir=render_save_dir)
 
         self.action_space = spaces.Discrete(4)  # up, down, left, right
         self.observation_space = spaces.Box(

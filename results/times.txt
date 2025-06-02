@@ -1,0 +1,7 @@
+Inferencing time of 200 iterations:
+
+GA: 1:43:30
+NEAT: 7.50s (training time 1000 generation 30min +)
+Greedy: 5.20s
+Random: 3.89s
+PPO: 3.87s (training time 1e7 timestamps 1 hour +)

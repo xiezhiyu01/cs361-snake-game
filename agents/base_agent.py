@@ -5,9 +5,9 @@ class BaseAgent:
         self.grid_size = grid_size
         self.directions = {
             0: (-1, 0),  # up
-            1: (1, 0),   # down
-            2: (0, -1),  # left
-            3: (0, 1)    # right
+            1: (0, 1), # right
+            2: (1, 0),   # down
+            3: (0, -1)  # left
         }
 
     def seed(self, seed=None):

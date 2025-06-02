@@ -1,12 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import patches
+import os
 
 class SnakeRenderer:
-    def __init__(self, grid_size):
+    def __init__(self, grid_size, save_dir=None):
         self.grid_size = grid_size
         self.fig = None
         self.ax = None
+        self.save_dir = save_dir # or None if you don't want to save frames
+        self.frame_count = 0
 
     def render(self, state):
         if self.fig is None or not plt.fignum_exists(self.fig.number):
@@ -40,5 +43,12 @@ class SnakeRenderer:
         fx, fy = state['food']
         self.ax.add_patch(patches.Circle((fy + 0.5, fx + 0.5), radius=0.4, color='red'))
         self.ax.set_title("Snake")
-        plt.draw()
-        plt.pause(0.01)
+        if self.save_dir:
+            if not os.path.exists(self.save_dir):
+                os.makedirs(self.save_dir)
+            filepath = f"{self.save_dir}/frame_{self.frame_count:04d}.png"
+            self.fig.savefig(filepath, dpi=100)
+            self.frame_count += 1
+        else:
+            plt.draw()
+            plt.pause(0.01)

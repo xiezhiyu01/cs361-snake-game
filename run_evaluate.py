@@ -29,12 +29,13 @@ if __name__ == "__main__":
     parser.add_argument("--grid", type=int, default=16)
     parser.add_argument("--episodes", type=int, default=10, help="Number of evaluation episodes (0 = skip)")
     parser.add_argument("--visualize", action="store_true", help="Visualize one episode")
+    parser.add_argument("--visualize_save_dir", type=str, default=None, help="Directory to save visualizations")
     parser.add_argument("--delay", type=float, default=0.1)
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
     args = parser.parse_args()
 
     agent = get_agent(args.grid, args.agent, args.model)
-    env = SnakeEnv(grid_size=args.grid, agent_name=args.agent)
+    env = SnakeEnv(grid_size=args.grid, agent_name=args.agent, render_save_dir=args.visualize_save_dir)
 
     print(f"Evaluating {args.agent} for {args.episodes} episodes...")
 
