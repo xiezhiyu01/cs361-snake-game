@@ -8,6 +8,15 @@ class PPOAgent(BaseAgent):
 
     def select_action(self, obs, state=None):
         action, _ = self.model.predict(obs, deterministic=True)
+        # translate action due to a change in the action space
+        # used to up down left right, now up right down left
+        temp_wrapped_action_dict = [
+            0,  # up
+            2,  
+            3,  
+            1   
+        ]
+        action = temp_wrapped_action_dict[int(action)]
         return int(action)
 
     def seed(self, seed):
