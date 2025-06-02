@@ -23,7 +23,10 @@ class GreedyAgent(BaseAgent):
                 candidates.append((dist, action))
 
         if candidates:
-            candidates.sort()
-            return candidates[0][1]
+            # Sort candidates by distance to food, then randomly select one
+            candidates.sort(key=lambda x: x[0])
+            min_distance = candidates[0][0]
+            best_candidates = [action for dist, action in candidates if dist == min_distance]
+            return random.choice(best_candidates)
         else:
             return random.choice(list(self.directions.keys()))
