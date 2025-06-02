@@ -5,3 +5,4 @@ stable-baselines3
 neat-python
 shimmy>=2.0
 tqdm
+graphviz
