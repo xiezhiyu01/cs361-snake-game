@@ -68,7 +68,7 @@ class NEATAgent(BaseAgent):
                 danger_dir.append(1)
         inputs.extend(danger_dir)
 
-        # Danger Directions (1=immediate, 0=none)
+        # # Danger Directions (1=immediate, 0=none)
         # inputs.extend([
         #     1 if dist == 1 else 0 for dist in obstacle_dist
         # ])
@@ -88,29 +88,29 @@ class NEATAgent(BaseAgent):
             food_dir[2 if dy < 0 else 3] = 1
         inputs.extend(food_dir)
 
-        # 3. Current direction (one-hot)
-        direction_map = {
-            (0, 1): [1, 0, 0, 0],   # right
-            (0, -1): [0, 1, 0, 0],  # left
-            (1, 0): [0, 0, 1, 0],   # down
-            (-1, 0): [0, 0, 0, 1],  # up
-        }
-        direction = direction_map.get(state['direction'], [0, 0, 0, 0])
-        # inputs.extend(direction)
+        # # 3. Current direction (one-hot)
+        # direction_map = {
+        #     (0, 1): [1, 0, 0, 0],   # right
+        #     (0, -1): [0, 1, 0, 0],  # left
+        #     (1, 0): [0, 0, 1, 0],   # down
+        #     (-1, 0): [0, 0, 0, 1],  # up
+        # }
+        # direction = direction_map.get(state['direction'], [0, 0, 0, 0])
+        # # inputs.extend(direction)
 
-        # 4. Tail direction (where is the tail moving)
-        if len(state['snake']) >= 2:
-            tail_dx = tail[0] - state['snake'][-2][0]
-            tail_dy = tail[1] - state['snake'][-2][1]
-            tail_dir = direction_map.get((tail_dx, tail_dy), [0, 0, 0, 0])
-        else:
-            tail_dir = [0, 0, 0, 0]
-        # inputs.extend(tail_dir)
+        # # 4. Tail direction (where is the tail moving)
+        # if len(state['snake']) >= 2:
+        #     tail_dx = tail[0] - state['snake'][-2][0]
+        #     tail_dy = tail[1] - state['snake'][-2][1]
+        #     tail_dir = direction_map.get((tail_dx, tail_dy), [0, 0, 0, 0])
+        # else:
+        #     tail_dir = [0, 0, 0, 0]
+        # # inputs.extend(tail_dir)
 
         # 5. Head position (normalized)
         inputs.extend([head[0] / grid_size, head[1] / grid_size])
 
-        # 6. Tail position (normalized)
+        # # 6. Tail position (normalized)
         # inputs.extend([tail[0] / grid_size, tail[1] / grid_size])
 
         return np.array(inputs, dtype=np.float32)

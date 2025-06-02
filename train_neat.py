@@ -126,8 +126,8 @@ def run_neat(config_path, n=50, path="checkpoints/best_neat_genome.pkl", trials=
                 best_genome = genome
                 print(f"[New Best] Genome {genome_id} with fitness {fitness:.2f} at generation {generation_counter[0]}")
 
-        # Save every 100 generations or at the end
-        if generation_counter[0] % 100 == 0 or generation_counter[0] == n:
+        # Save every 50 generations or at the end
+        if generation_counter[0] % 50 == 0 or generation_counter[0] == n:
             with open(path, "wb") as f:
                 pickle.dump(best_genome, f)
             print(f"[Checkpoint] Saved best genome at generation {generation_counter[0]} with fitness {best_fitness:.2f}")
@@ -143,7 +143,8 @@ if __name__ == "__main__":
     parser.add_argument("--n", type=int, default=50, help="Number of generations to run")
     parser.add_argument("--path", type=str, default="checkpoints/best_neat_genome.pkl", help="Path to save the best genome")
     parser.add_argument("--trials", type=int, default=5, help="Number of eval trials per genome")
-    parser.add_argument("--log", type=str, default="logs/neat_training.log", help="Path to save the training log")
+    parser.add_argument("--log", type=str, default=None, help="Path to save the training log")
     args = parser.parse_args()
-    setup_logger(args.log)
+    if args.log is not None:
+        setup_logger(args.log)
     run_neat(args.config, args.n, args.path, args.trials)
